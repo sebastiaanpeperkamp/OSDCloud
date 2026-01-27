@@ -3,7 +3,18 @@ $DebugPreference = "Continue"
 Start-Transcript -Path "X:\OSDCloud\Debug.log" -Force
 Write-Debug "Start Start-OSDCloud script"
 
-# Variables
+# Windows variables
+$Product = (Get-MyComputerProduct)
+$Model = (Get-MyComputerModel)
+$Manufacturer = (Get-CimInstance -ClassName Win32_ComputerSystem).Manufacturer
+$OSVersion = 'Windows 11' #Used to Determine Driver Pack
+$OSReleaseID = '25H2' #Used to Determine Driver Pack
+$OSName = 'Windows 11 25H2 x64'
+$OSEdition = 'Enterprise'
+$OSActivation = 'Volume'
+$OSLanguage = 'nl-nl'
+
+# OSDVariables
 Write-Debug "Set Variables"
 $Global:MyOSDCloud = [ordered]@{
     Restart = [bool]$true
@@ -21,11 +32,26 @@ $Global:MyOSDCloud = [ordered]@{
 
 Write-Debug $($Global:MyOSDCloud | ConvertTo-Json)
 
+Try {
+
+    $DriverPack = Get-OSDCloudDriverPack -Product $Product -OSVersion $OSVersion -OSReleaseID $OSReleaseID
+    if ($DriverPack){
+    
+        $Global:MyOSDCloud.DriverPackName = $DriverPack.Name
+        
+    }
+
+} Catch {
+
+    Write-Debug "An error occured: $($_)"
+    Throw $_
+    
+}
 
 Try {
 
     Write-Debug "Start Deployment"
-    Start-OSDCloud -FindImageFile -OSImageIndex 1 -Manufacturer (Get-MyComputerManufacturer -Brief) -Product (Get-MyComputerProduct)
+    Start-OSDCloud -OSName $OSName -OSEdition $OSEdition -OSActivation $OSActivation -OSLanguage $OSLanguage
 
 } Catch {
 
