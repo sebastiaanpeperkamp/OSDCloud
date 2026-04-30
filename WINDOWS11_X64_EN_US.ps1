@@ -29,6 +29,7 @@ $Global:MyOSDCloud = [ordered]@{
     SyncMSUpCatDriverUSB = [bool]$true
     CheckSHA1 = [bool]$true
     AutomateAutopilot = [bool]$true
+    ZTI = [bool]$true
 }
 
 Write-Debug $($Global:MyOSDCloud | ConvertTo-Json)
